@@ -5,6 +5,8 @@ services:
       - .env
     environment:
       - PORT=3001
+    volumes:
+      - gift-data:/app/data
     restart: unless-stopped
     networks:
       - agentready_internal
@@ -14,6 +16,9 @@ services:
     restart: unless-stopped
     networks:
       - agentready_internal
+
+volumes:
+  gift-data:
 
 networks:
   agentready_internal:

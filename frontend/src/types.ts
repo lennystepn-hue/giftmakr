@@ -3,6 +3,7 @@ export type CountryCode = "DE" | "ES" | "UK" | "US" | "CA" | "FR" | "IT" | "NL";
 export interface QuizState {
   recipient: string;
   occasion: string;
+  age: string;
   minBudget: number;
   maxBudget: number;
   interests: string[];
@@ -31,6 +32,7 @@ export type RelevanceLabel = "Perfect Match" | "Great Pick" | "Worth a Look";
 export const INITIAL_QUIZ_STATE: QuizState = {
   recipient: "",
   occasion: "",
+  age: "",
   minBudget: 50,
   maxBudget: 150,
   interests: [],

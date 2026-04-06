@@ -37,3 +37,13 @@ export const DEFAULT_ZIPCODES: Record<CountryCode, string> = {
   DE: "10115", ES: "28001", UK: "SW1A 1AA", US: "10001",
   CA: "M5V 3L9", FR: "75001", IT: "00100", NL: "1012",
 };
+
+export const SEARCH_LANGUAGES: Record<CountryCode, string> = {
+  DE: "German", ES: "Spanish", UK: "English", US: "English",
+  CA: "English", FR: "French", IT: "Italian", NL: "Dutch",
+};
+
+export const CURRENCY_LABELS: Record<CountryCode, string> = {
+  DE: "EUR", ES: "EUR", UK: "GBP", US: "USD",
+  CA: "CAD", FR: "EUR", IT: "EUR", NL: "EUR",
+};

@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Gift } from "lucide-react";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const location = useLocation();
@@ -21,7 +20,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <header className="border-b border-sage/10 bg-cream/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 font-heading text-xl font-bold text-sage">
-            <Gift size={22} className="text-apricot" />
+            <img src="/favicon.svg" alt="" className="w-6 h-6" />
             Giftmakr
           </Link>
           <nav className="flex items-center gap-6">
@@ -37,7 +36,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2 font-heading font-bold text-sage">
-              <Gift size={18} className="text-apricot" />
+              <img src="/favicon.svg" alt="" className="w-5 h-5" />
               Giftmakr
             </div>
             <div className="flex items-center gap-4 text-sm text-charcoal/50">

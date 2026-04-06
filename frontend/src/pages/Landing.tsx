@@ -91,6 +91,14 @@ function useLiveCounter(base: number) {
 
 export default function Landing() {
   const liveCount = useLiveCounter(2847);
+  const [recentSearches, setRecentSearches] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/recent")
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setRecentSearches(data); })
+      .catch(() => {});
+  }, []);
 
   return (
     <Layout>
@@ -100,69 +108,103 @@ export default function Landing() {
           name="description"
           content="Find perfect gift ideas in seconds. Answer a few questions and get personalized AI-powered gift suggestions for any occasion — free, no signup required."
         />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": FAQ_ITEMS.map(item => ({
+            "@type": "Question",
+            "name": item.question,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": item.answer,
+            },
+          })),
+        })}</script>
       </Helmet>
 
-      {/* Background gift silhouettes — full width */}
-      <div className="absolute inset-0 w-full pointer-events-none select-none overflow-hidden" aria-hidden="true">
-        {/* Gift box SVG path reused */}
-        {[
-          { cls: "left-[3%] top-[10%] w-28 h-28 text-sage/[0.06] rotate-[-15deg]" },
-          { cls: "right-[5%] top-[5%] w-24 h-24 text-apricot/[0.07] rotate-[10deg]" },
-          { cls: "left-[15%] bottom-[15%] w-20 h-20 text-sage/[0.05] rotate-[20deg]" },
-          { cls: "right-[12%] bottom-[10%] w-24 h-24 text-apricot/[0.05] rotate-[-20deg]" },
-          { cls: "left-[40%] top-[3%] w-16 h-16 text-sage/[0.04] rotate-[30deg]" },
-          { cls: "right-[30%] bottom-[5%] w-18 h-18 text-apricot/[0.04] rotate-[-10deg]" },
-          { cls: "left-[1%] top-[50%] w-20 h-20 text-sage/[0.05] rotate-[5deg]" },
-          { cls: "right-[2%] top-[45%] w-16 h-16 text-apricot/[0.06] rotate-[-30deg]" },
-        ].map((s, i) => (
-          <svg key={i} className={`absolute ${s.cls}`} viewBox="0 0 24 24" fill="currentColor"><path d="M20 7h-1.26A2 2 0 0 0 19 6a3 3 0 0 0-3-3c-1.09 0-2.06.58-2.6 1.45L12 6.13l-1.4-1.68A3.02 3.02 0 0 0 8 3a3 3 0 0 0-3 3c0 .36.1.71.26 1H4c-1.1 0-2 .9-2 2v2c0 .55.45 1 1 1h18c.55 0 1-.45 1-1V9c0-1.1-.9-2-2-2zM8 5c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm8 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM3 14v5c0 1.1.9 2 2 2h6v-7H3zm10 7h6c1.1 0 2-.9 2-2v-5h-8v7z"/></svg>
-        ))}
-        {/* Hearts & stars scattered */}
-        <svg className="absolute right-[20%] top-[15%] w-14 h-14 text-apricot/[0.05] rotate-[-25deg]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-        <svg className="absolute left-[8%] top-[30%] w-12 h-12 text-sage/[0.04] rotate-[35deg]" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
-        <svg className="absolute right-[8%] bottom-[25%] w-10 h-10 text-sage/[0.05] rotate-[15deg]" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
-      </div>
-
       {/* Hero */}
-      <section className="relative max-w-3xl mx-auto text-center px-4 pt-20 pb-12 md:pt-32 md:pb-16">
-        <h1 className="font-heading text-5xl md:text-6xl font-extrabold text-charcoal leading-[1.1] tracking-tight">
-          Stop guessing.
-          <span className="block mt-2 bg-gradient-to-r from-sage to-apricot bg-clip-text text-transparent">Start gifting.</span>
-        </h1>
-        <p className="mt-6 text-lg md:text-xl text-charcoal/60 max-w-xl mx-auto leading-relaxed">
-          Answer 7 quick questions and discover gift ideas they'll actually love — personalized, instant, and completely free.
-        </p>
-        <div className="mt-9">
-          <Link to="/find" className="inline-block">
-            <span className="inline-flex items-center gap-2 bg-apricot text-white text-lg font-bold px-10 py-4 rounded-full shadow-[0_4px_20px_rgba(244,162,97,0.4)] hover:shadow-[0_6px_28px_rgba(244,162,97,0.5)] hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 cursor-pointer">
-              Find the perfect gift <ArrowRight size={18} />
-            </span>
-          </Link>
-        </div>
-        <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-charcoal/50">
-          <span className="flex items-center gap-1.5">
-            <CheckCircle size={14} className="text-sage" /> 100% Free
-          </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle size={14} className="text-sage" /> No Sign Up Required
-          </span>
-        </div>
-        <div className="mt-4 flex items-center justify-center gap-2 text-sm text-charcoal/40">
-          <div className="flex -space-x-2">
-            {[
-              "https://i.pravatar.cc/56?img=1",
-              "https://i.pravatar.cc/56?img=5",
-              "https://i.pravatar.cc/56?img=16",
-              "https://i.pravatar.cc/56?img=32",
-            ].map((src, i) => (
-              <img key={i} src={src} alt="" className="w-7 h-7 rounded-full border-2 border-cream object-cover" />
-            ))}
+      <section className="relative max-w-6xl mx-auto px-4 pt-16 pb-12 md:pt-28 md:pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
+          {/* Left — text */}
+          <div className="text-center md:text-left">
+            <h1 className="font-heading text-5xl md:text-6xl font-extrabold text-charcoal leading-[1.1] tracking-tight">
+              Stop guessing.
+              <span className="block mt-2 bg-gradient-to-r from-apricot via-rose to-apricot bg-clip-text text-transparent">Start gifting.</span>
+            </h1>
+            <p className="mt-6 text-lg md:text-xl text-charcoal/60 max-w-lg leading-relaxed">
+              Answer a few quick questions and discover gift ideas they'll actually love — personalized, instant, and completely free.
+            </p>
+            <div className="mt-9">
+              <Link to="/find" className="inline-block">
+                <span className="inline-flex items-center gap-2 bg-apricot text-white text-lg font-bold px-10 py-4 rounded-full shadow-[0_4px_20px_rgba(244,162,97,0.4)] hover:shadow-[0_6px_28px_rgba(244,162,97,0.5)] hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 cursor-pointer">
+                  Find the perfect gift <ArrowRight size={18} />
+                </span>
+              </Link>
+            </div>
+            <div className="mt-5 flex flex-col sm:flex-row items-center md:justify-start justify-center gap-3 sm:gap-6 text-sm text-charcoal/50">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle size={14} className="text-sage" /> 100% Free
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle size={14} className="text-sage" /> No Sign Up Required
+              </span>
+            </div>
+            <div className="mt-4 flex items-center md:justify-start justify-center gap-2 text-sm text-charcoal/40">
+              <div className="flex -space-x-2">
+                {[
+                  "https://i.pravatar.cc/56?img=1",
+                  "https://i.pravatar.cc/56?img=5",
+                  "https://i.pravatar.cc/56?img=16",
+                  "https://i.pravatar.cc/56?img=32",
+                ].map((src, i) => (
+                  <img key={i} src={src} alt="" className="w-7 h-7 rounded-full border-2 border-cream object-cover" />
+                ))}
+              </div>
+              <span>{liveCount} gifts found today</span>
+            </div>
           </div>
-          <span>{liveCount} gifts found today</span>
+
+          {/* Right — visual gift preview */}
+          <div className="hidden md:block relative">
+            {/* Warm glow behind cards */}
+            <div className="absolute -inset-6 bg-gradient-to-br from-sage/10 via-apricot/5 to-transparent rounded-3xl blur-2xl" />
+
+            {/* Floating gift cards */}
+            <div className="relative space-y-4">
+              {EXAMPLE_RESULTS[0].products.map((p, i) => (
+                <div
+                  key={p.name}
+                  className="bg-white rounded-2xl border border-sage/10 p-4 flex items-center gap-4 shadow-sm animate-fade-in"
+                  style={{ animationDelay: `${i * 150}ms`, marginLeft: i === 1 ? '2rem' : i === 2 ? '1rem' : '0' }}
+                >
+                  <div className="w-16 h-16 rounded-xl bg-cream/80 overflow-hidden flex items-center justify-center shrink-0 p-1">
+                    <img src={p.img} alt="" className="max-h-full max-w-full object-contain" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-charcoal leading-tight truncate">{p.name}</p>
+                    <p className="text-sage font-bold text-sm mt-0.5">{p.price}</p>
+                  </div>
+                  <span className="shrink-0 text-xs font-medium text-white bg-sage/80 px-2.5 py-1 rounded-full">
+                    {i === 0 ? "Perfect Match" : i === 1 ? "Great Pick" : "Top Rated"}
+                  </span>
+                </div>
+              ))}
+
+              {/* Quiz preview bubble */}
+              <div className="bg-sage/5 border border-sage/10 rounded-2xl p-4 ml-4">
+                <p className="text-xs text-charcoal/40 mb-2">Sarah searched for:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Mom", "Birthday", "Cooking", "Under 35"].map(tag => (
+                    <span key={tag} className="bg-white border border-sage/15 rounded-full px-2.5 py-1 text-xs text-charcoal/70">{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Occasion quick-select chips */}
-        <div className="mt-8">
+        <div className="mt-12 text-center">
           <p className="text-sm text-charcoal/40 mb-3">Jump right in:</p>
           <div className="flex flex-wrap justify-center gap-2">
             {OCCASIONS.map((o) => (
@@ -227,6 +269,33 @@ export default function Landing() {
           ))}
         </div>
       </section>
+
+      {/* Recently searched */}
+      {recentSearches.length > 0 && (
+        <section className="max-w-4xl mx-auto px-4 pb-16">
+          <h2 className="font-heading text-2xl font-bold text-center text-charcoal mb-3">
+            Recently searched
+          </h2>
+          <p className="text-center text-charcoal/50 mb-8 text-sm">See what others are looking for right now</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recentSearches.map((s) => (
+              <a
+                key={s.slug}
+                href={`/gifts/${s.slug}`}
+                className="bg-white border border-sage/10 rounded-2xl p-5 hover:shadow-md hover:scale-[1.02] transition-all duration-200 flex gap-4 items-start"
+              >
+                {s.topProduct?.image && (
+                  <img src={s.topProduct.image} alt="" className="w-14 h-14 rounded-lg object-contain bg-cream/50 shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-charcoal leading-tight line-clamp-2">{s.title}</p>
+                  <p className="text-xs text-charcoal/40 mt-1">{s.productCount} gifts found</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Popular right now */}
       <section className="max-w-3xl mx-auto px-4 pb-16 text-center">

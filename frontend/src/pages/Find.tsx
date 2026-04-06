@@ -42,9 +42,22 @@ const GENDERS: { value: QuizState["gender"]; label: string }[] = [
 ];
 const COUNTRIES: CountryCode[] = ["DE", "ES", "UK", "US", "CA", "FR", "IT", "NL"];
 
+const AGE_RANGES = [
+  { value: "0-2", label: "0–2 years" },
+  { value: "3-5", label: "3–5 years" },
+  { value: "6-12", label: "6–12 years" },
+  { value: "13-17", label: "13–17 years" },
+  { value: "18-25", label: "18–25 years" },
+  { value: "26-35", label: "26–35 years" },
+  { value: "36-50", label: "36–50 years" },
+  { value: "51-65", label: "51–65 years" },
+  { value: "65+", label: "65+ years" },
+];
+
 const STEP_CONFIG = [
   { title: "Who's the lucky one?", subtitle: "Let's find them something special" },
   { title: "What's the occasion?", subtitle: "" },
+  { title: "How old are they?", subtitle: "Helps us find age-appropriate gifts" },
   { title: "What's the budget?", subtitle: "" },
   { title: "What are they into?", subtitle: "Pick as many as you like" },
   { title: "Any specific hobby or passion?", subtitle: "Optional — helps us find more targeted gifts" },
@@ -69,18 +82,22 @@ export default function Find() {
   const [error, setError] = useState<string | null>(null);
   const [customInput, setCustomInput] = useState("");
 
-  const TOTAL_STEPS = 7;
+  const TOTAL_STEPS = 8;
   const [slideDir, setSlideDir] = useState<"right" | "left">("right");
 
   const update = (partial: Partial<QuizState>) => setQuiz((prev) => ({ ...prev, ...partial }));
 
-  // Auto-advance for single-select steps (recipient, occasion, gender)
+  // Auto-advance for single-select steps (recipient, occasion, gender, country)
   const selectAndAdvance = (partial: Partial<QuizState>) => {
     update(partial);
     setTimeout(() => {
       setSlideDir("right");
-      if (step < TOTAL_STEPS) setStep((s) => s + 1);
-      else submit();
+      if (step < TOTAL_STEPS) {
+        setStep((s) => s + 1);
+      } else {
+        // Pass the partial directly so submit uses the latest value
+        submitWithOverride(partial);
+      }
     }, 250);
   };
 
@@ -105,11 +122,12 @@ export default function Find() {
     switch (step) {
       case 1: return !!quiz.recipient;
       case 2: return !!quiz.occasion;
-      case 3: return quiz.minBudget > 0 && quiz.maxBudget > quiz.minBudget;
-      case 4: return quiz.interests.length > 0;
-      case 5: return true;
-      case 6: return !!quiz.gender;
-      case 7: return !!quiz.country;
+      case 3: return !!quiz.age;
+      case 4: return quiz.minBudget > 0 && quiz.maxBudget > quiz.minBudget;
+      case 5: return quiz.interests.length > 0;
+      case 6: return true;
+      case 7: return !!quiz.gender;
+      case 8: return !!quiz.country;
       default: return false;
     }
   };
@@ -119,7 +137,7 @@ export default function Find() {
     if (step < TOTAL_STEPS) {
       setStep(step + 1);
     } else {
-      submit();
+      submitWithOverride();
     }
   };
 
@@ -133,12 +151,13 @@ export default function Find() {
     }
   };
 
-  const submit = async () => {
+  const submitWithOverride = async (override?: Partial<QuizState>) => {
+    const finalQuiz = override ? { ...quiz, ...override } : quiz;
     setView("loading");
     setError(null);
     setProducts([]);
 
-    const result = await fetchRecommendations(quiz, quiz.country);
+    const result = await fetchRecommendations(finalQuiz, finalQuiz.country);
 
     if (result.error) {
       setError(result.error);
@@ -238,6 +257,26 @@ export default function Find() {
       case 3:
         return (
           <StepWrapper title={cfg.title} subtitle={subtitle}>
+            <div className="grid grid-cols-3 gap-3">
+              {AGE_RANGES.map((a) => (
+                <button
+                  key={a.value}
+                  onClick={() => selectAndAdvance({ age: a.value })}
+                  className={`px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all duration-200 hover:scale-[1.03] ${
+                    quiz.age === a.value
+                      ? "border-sage bg-sage/10 text-sage shadow-sm"
+                      : "border-sage/10 hover:border-sage/30 bg-white text-charcoal"
+                  }`}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          </StepWrapper>
+        );
+      case 4:
+        return (
+          <StepWrapper title={cfg.title} subtitle={subtitle}>
             <RangeSlider
               min={5} max={500} step={5}
               valueMin={quiz.minBudget} valueMax={quiz.maxBudget}
@@ -246,7 +285,7 @@ export default function Find() {
             />
           </StepWrapper>
         );
-      case 4:
+      case 5:
         return (
           <StepWrapper title={cfg.title} subtitle={subtitle}>
             <div className="flex flex-wrap gap-2 mb-4">
@@ -278,7 +317,7 @@ export default function Find() {
             </div>
           </StepWrapper>
         );
-      case 5:
+      case 6:
         return (
           <StepWrapper title={cfg.title} subtitle={subtitle}>
             <input
@@ -290,7 +329,7 @@ export default function Find() {
             />
           </StepWrapper>
         );
-      case 6:
+      case 7:
         return (
           <StepWrapper title={cfg.title} subtitle={subtitle}>
             <div className="space-y-2">
@@ -310,7 +349,7 @@ export default function Find() {
             </div>
           </StepWrapper>
         );
-      case 7:
+      case 8:
         return (
           <StepWrapper title={cfg.title} subtitle={subtitle}>
             <div className="grid grid-cols-2 gap-3">
@@ -396,7 +435,7 @@ export default function Find() {
 
           <div className="flex justify-center gap-3">
             {(error || products.length === 0) && (
-              <Button variant="primary" onClick={submit}>
+              <Button variant="primary" onClick={() => submitWithOverride()}>
                 <RefreshCw size={16} /> Try again
               </Button>
             )}
@@ -436,13 +475,13 @@ export default function Find() {
             <ArrowLeft size={16} /> Back
           </Button>
           <div className="flex gap-2">
-            {step === 5 && (
+            {step === 6 && (
               <Button variant="ghost" onClick={next}>
                 Skip <SkipForward size={14} />
               </Button>
             )}
             {/* Hide Next on auto-advance steps unless already selected */}
-            {([1, 2, 6].includes(step)) ? (
+            {([1, 2, 3, 7].includes(step)) ? (
               canProceed() && (
                 <Button variant="primary" onClick={next}>
                   {step < TOTAL_STEPS ? <>Next <ArrowRight size={16} /></> : "Find gifts"}

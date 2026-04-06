@@ -1,12 +1,15 @@
 interface QuizInput {
   recipient: string;
   occasion: string;
+  age: string;
   minBudget: number;
   maxBudget: number;
   interests: string[];
   customInterest: string;
   gender: string;
   hobby: string;
+  currency?: string;
+  language?: string;
 }
 
 interface ClaudeResponse {
@@ -27,10 +30,12 @@ export async function generateSearchTerms(quiz: QuizInput): Promise<string[]> {
   const userPrompt = `Gift recipient details:
 - Relationship: ${quiz.recipient}
 - Occasion: ${quiz.occasion}
-- Budget: ${quiz.minBudget} - ${quiz.maxBudget} EUR
+${quiz.age ? `- Age range: ${quiz.age} years old` : ""}
+- Budget: ${quiz.minBudget} - ${quiz.maxBudget} ${quiz.currency || "EUR"}
 - Interests: ${allInterests.join(", ") || "none specified"}
 ${quiz.gender ? `- Gender: ${quiz.gender}` : ""}
 ${quiz.hobby ? `- Hobby/passion: ${quiz.hobby}` : ""}
+- Amazon store language: ${quiz.language || "English"}
 
 Suggest 20 specific Amazon search terms for gifts.`;
 
@@ -42,13 +47,20 @@ Suggest 20 specific Amazon search terms for gifts.`;
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
+      model: "claude-sonnet-4-6",
       max_tokens: 1024,
-      system: `You are a gift recommendation assistant. Given details about a gift recipient, suggest 20 specific Amazon search terms that would find good gifts within their budget.
+      system: `You are a gift recommendation assistant. Given details about a gift recipient, suggest 20 specific Amazon search terms that would find good, thoughtful gifts within their budget.
 
 Return ONLY valid JSON: { "searchTerms": ["term1", "term2", ...] }
 
-Keep terms in English. Be specific (e.g., "wireless noise cancelling headphones under 100" not just "electronics"). Mix practical, fun, and unique ideas. Each term should be a realistic Amazon search query.`,
+Rules:
+- Use the Amazon store language specified (e.g. German terms for German Amazon, Spanish for Spanish Amazon, etc.)
+- Be specific (e.g. "kabellose Kopfhörer Bluetooth" not just "Elektronik")
+- Every term MUST be something that makes a good GIFT — something you'd be happy to unwrap
+- NEVER suggest: tools, scissors, office supplies, cleaning products, batteries, cables, adapters, tape, glue, storage boxes, or anything utilitarian/boring
+- Mix practical, fun, and unique ideas
+- Each term should be a realistic Amazon search query that returns giftable products
+- Think about what would make the recipient smile`,
       messages: [{ role: "user", content: userPrompt }],
     }),
   });

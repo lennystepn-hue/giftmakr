@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: ./backend
+    env_file:
+      - .env
+    environment:
+      - PORT=3001
+    restart: unless-stopped
+    networks:
+      - agentready_internal
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    networks:
+      - agentready_internal
+
+networks:
+  agentready_internal:
+    external: true

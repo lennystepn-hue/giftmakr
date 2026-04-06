@@ -1,0 +1,43 @@
+# Giftmakr - Find the Perfect Gift
+
+> Giftmakr is a free gift recommendation tool. Answer 7 quick questions about the recipient, occasion, interests, and budget — and get personalized gift suggestions from Amazon.
+
+## What is Giftmakr?
+
+Giftmakr helps people find the perfect gift for anyone, for any occasion. It uses AI to generate smart search terms based on your answers, then finds matching products on Amazon within your budget.
+
+## Key Features
+
+- 7-step quiz: recipient, occasion, budget, interests, hobby, gender, country
+- Personalized gift recommendations powered by AI
+- Real Amazon products with direct purchase links
+- Supports 8 countries: Germany, Spain, UK, US, Canada, France, Italy, Netherlands
+- 100% free, no signup required
+- Budget filtering with 20% tolerance
+
+## How It Works
+
+1. Answer 7 questions about the gift recipient
+2. AI generates targeted Amazon search terms
+3. Products are fetched and filtered by budget
+4. Results are sorted by rating and reviews
+
+## Pages
+
+- / — Landing page with overview, how it works, testimonials
+- /find — The gift finder quiz
+- /about — About Giftmakr
+- /privacy — Privacy policy
+- /terms — Terms of service
+
+## Tech Stack
+
+- Frontend: React, TypeScript, Tailwind CSS
+- Backend: Node.js, Express
+- AI: Claude API for search term generation
+- Product Data: Amazon via Scrape.do API
+- Hosting: Hetzner VPS, Docker, Nginx, Let's Encrypt
+
+## Contact
+
+Website: https://giftmakr.com

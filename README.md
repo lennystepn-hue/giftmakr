@@ -1,59 +1,83 @@
 <p align="center">
-  <img src="frontend/public/favicon.svg" alt="Giftmakr" width="64" height="64" />
+  <img src="frontend/public/favicon.svg" alt="Giftmakr" width="80" height="80" />
 </p>
 
 <h1 align="center">Giftmakr</h1>
 
 <p align="center">
-  <strong>Find the perfect gift for anyone, any occasion.</strong><br/>
-  AI-powered gift recommendations from Amazon — free, instant, no signup.
+  <strong>AI-powered gift recommendations for any occasion.</strong><br/>
+  Answer a few questions. Get curated gift ideas from Amazon. Free, instant, no signup.
 </p>
 
 <p align="center">
-  <a href="https://giftmakr.com">giftmakr.com</a>
+  <a href="https://giftmakr.com"><strong>giftmakr.com</strong></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/react-18-61DAFB?logo=react&logoColor=white" alt="React" />
+  <img src="https://img.shields.io/badge/node.js-20-5FA04E?logo=nodedotjs&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/claude-sonnet%204.6-D97757?logo=anthropic&logoColor=white" alt="Claude" />
+  <img src="https://img.shields.io/badge/docker-deployed-2496ED?logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT" />
 </p>
 
 ---
 
 ## How It Works
 
-1. **Answer 7 quick questions** about the recipient, occasion, budget, and interests
-2. **AI generates smart search terms** tailored to your answers
-3. **Products are fetched from Amazon**, filtered by budget, and sorted by rating
-4. **Pick your favorite** and buy directly on Amazon
+```
+ Quiz (8 steps)          Claude Sonnet 4.6          Amazon (Scrape.do)
+┌──────────────┐      ┌──────────────────┐      ┌───────────────────┐
+│ Recipient    │      │                  │      │                   │
+│ Occasion     │─────>│  Generate 20     │─────>│  Search products  │
+│ Age          │      │  search terms    │      │  Filter by budget │
+│ Budget       │      │                  │      │  Sort by rating   │
+│ Interests    │      └──────────────────┘      └───────────────────┘
+│ Hobby        │                                         │
+│ Gender       │              ┌──────────────────┐       │
+│ Country      │              │  SEO Gift Page   │<──────┘
+└──────────────┘              │  /gifts/:slug    │
+                              └──────────────────┘
+```
+
+1. **8-step conversational quiz** — recipient, occasion, age, budget, interests, hobby, gender, country
+2. **Claude Sonnet 4.6** generates 20 targeted Amazon search terms based on answers
+3. **Scrape.do** fetches real products from Amazon, filtered by budget and sorted by rating
+4. **Results page** with affiliate links — every search also creates a public SEO page
+
+## Features
+
+- **Smart recommendations** — Claude generates context-aware search terms, not generic keywords
+- **Multi-country** — DE, ES, UK, US, CA, FR, IT, NL with localized search terms, currencies, and affiliate IDs
+- **Programmatic SEO** — every user search creates an indexable page at `/gifts/:slug`, building a long-tail keyword library over time
+- **Auto-advance quiz** — single-select steps advance automatically for a fast, app-like experience
+- **Age-appropriate** — age ranges from 0-2 to 65+ ensure relevant gift suggestions
+- **No junk results** — prompt engineering excludes tools, office supplies, cables, and other non-gift items
+- **Mobile-first** — responsive design, sticky CTA on mobile
+- **Full SEO** — FAQ schema, sitemap index, structured data, llms.txt, OG tags
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
 | **Frontend** | React 18, TypeScript, Vite, Tailwind CSS |
-| **Backend** | Node.js, Express, TypeScript |
-| **AI** | Claude API (Haiku 4.5) for search term generation |
-| **Product Data** | Scrape.do API (Amazon search) |
+| **Backend** | Node.js 20, Express, TypeScript |
+| **AI** | Claude Sonnet 4.6 via Anthropic API |
+| **Product Data** | Scrape.do (Amazon search API) |
 | **Infrastructure** | Docker, Nginx, Let's Encrypt, Hetzner VPS |
-
-## Features
-
-- 7-step conversational quiz with auto-advance
-- Personalized gift recommendations powered by AI
-- Multi-country support: DE, ES, UK, US, CA, FR, IT, NL
-- Amazon affiliate integration with localized partner IDs
-- Budget filtering with smart tolerance
-- Mobile-first responsive design
-- SEO optimized with structured data, sitemap, and llms.txt
+| **SEO** | Dynamic sitemaps, FAQ schema, programmatic pages |
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 20+
-- An [Anthropic API key](https://console.anthropic.com)
-- A [Scrape.do API key](https://scrape.do)
+- [Anthropic API key](https://console.anthropic.com)
+- [Scrape.do API key](https://scrape.do)
 
-### Setup
+### Development
 
 ```bash
-# Clone the repository
 git clone https://github.com/lennystepn-hue/giftmakr.git
 cd giftmakr
 
@@ -61,21 +85,16 @@ cd giftmakr
 cp .env.example .env
 # Add your API keys to .env
 
-# Install dependencies
-cd backend && npm install && cd ..
-cd frontend && npm install && cd ..
+# Backend (Terminal 1)
+cd backend && npm install && npm run dev
 
-# Start development
-# Terminal 1 - Backend
-cd backend && npm run dev
-
-# Terminal 2 - Frontend
-cd frontend && npm run dev
+# Frontend (Terminal 2)
+cd frontend && npm install && npm run dev
 ```
 
-The frontend runs on `http://localhost:5173` and the backend on `http://localhost:3001`.
+Frontend runs on `http://localhost:5173`, backend on `http://localhost:3001`.
 
-### Docker Deployment
+### Production
 
 ```bash
 docker compose build
@@ -86,32 +105,31 @@ docker compose up -d
 
 ```
 giftmakr/
-  backend/
-    src/
-      routes/recommend.ts    # POST /api/recommend endpoint
-      services/claude.ts     # AI search term generation
-      services/scraper.ts    # Amazon product search
-      constants.ts           # Country configs, affiliate IDs
-  frontend/
-    src/
-      pages/
-        Landing.tsx           # Hero, social proof, FAQ
-        Find.tsx              # 7-step quiz + results
-      components/             # Reusable UI components
-    public/
-      robots.txt, sitemap.xml, llms.txt, favicon.svg
+├── backend/
+│   └── src/
+│       ├── routes/
+│       │   ├── recommend.ts        # POST /api/recommend — quiz → products
+│       │   └── gifts.ts            # GET /gifts/:slug — SEO pages
+│       ├── services/
+│       │   ├── claude.ts           # Claude API integration
+│       │   ├── scraper.ts          # Scrape.do Amazon search
+│       │   └── giftPages.ts        # Programmatic SEO page storage
+│       └── constants.ts            # Country configs, affiliate IDs
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── Landing.tsx         # Hero, social proof, testimonials, FAQ
+│   │   │   └── Find.tsx            # 8-step quiz + results
+│   │   └── components/             # Button, Chip, ProductCard, etc.
+│   └── public/
+│       ├── sitemap.xml             # Sitemap index
+│       ├── sitemap-main.xml        # Static pages
+│       ├── robots.txt
+│       ├── llms.txt
+│       └── favicon.svg
+├── docker-compose.yml
+└── .env.example
 ```
-
-## Environment Variables
-
-| Variable | Description |
-|----------|------------|
-| `ANTHROPIC_API_KEY` | Anthropic API key for Claude |
-| `SCRAPEDO_API_KEY` | Scrape.do API key for Amazon search |
-
-## Design Philosophy
-
-Warm, personal, helpful — like a thoughtful friend, not an algorithm. The AI is invisible; the experience feels human. Minimal UI with sage green and soft apricot tones. No gradients, shimmer, or "AI-powered" badges in the interface.
 
 ## License
 
